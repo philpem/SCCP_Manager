@@ -122,7 +122,7 @@ function sccp_list_keysets() {
     foreach ($ast_out as $line) {
 	if (strlen($line) > 3) {
 	    $line = substr($line,2);
-	    list ($line,$junk) = split(' ',$line);
+	    list ($line,$junk) = explode(' ',$line);
 	    if (strlen($ast_key[$line]) < 1) {
 		$ast_key[$line] = $line;;
 	    }
@@ -254,12 +254,19 @@ function sccp_get_dev_assoc($extension) {
 }
 
 function get_buttons_devtype($type) {
+    global $db;
+    $i = 0;
+    $sql = "SELECT dns, buttons
+		FROM sccpdevmodel
+		WHERE model='$type' ";
 
-    $res = mysql_query("SELECT dns, buttons
-			FROM sccpdevmodel
-			WHERE model='$type' ");
-			
-    while ($row = mysql_fetch_row($res)) {
+    $res = $db->getAll($sql);
+
+    if(DB::IsError($res)) {
+        die_freepbx($res->getMessage().$sql);
+    }
+
+    while ($row = $res[$i++]) {
 	$modelData['dns'] = $row[0];
 	$modelData['buttons'] = $row[1];
     }
@@ -310,7 +317,8 @@ function sccp_add_device($devData, $buttonData) {
 	}
 	$numButton++;	
     }  
-    sccp_edit_tftp($devData['name']);	    
+    $tftpdisplay=$devData['name'];
+    sccp_edit_tftp($tftpdiplay,$devData);	    
 }
 
 
@@ -457,13 +465,20 @@ function sccp_delete_extension($extension) {
 
 function sccp_get_model_data(){
     global $db;
+    $i = 0;
 	
-    $res = mysql_query("SELECT model, dns, buttons, loadimage
+    $sql = "SELECT model, dns, buttons, loadimage
 			FROM sccpdevmodel
 			WHERE dns > 0
-			ORDER BY model ");
-			
-    while ($row = mysql_fetch_row($res)) {
+			ORDER BY model ";
+
+    $res = $db->getAll($sql);
+
+    if(DB::IsError($res)) {
+        die_freepbx($res->getMessage().$sql);
+    }
+
+    while ($row = $res[$i++]) {
 	$modelData['model'][] = $row[0];
 	$modelData['dns'][] = $row[1];
 	$modelData['buttons'][] = $row[2];
@@ -475,12 +490,18 @@ function sccp_get_model_data(){
 function sccp_get_addon_data(){
     global $db;
 	
-    $res = mysql_query("SELECT model, buttons, loadimage
+    $sql = "SELECT model, buttons, loadimage
 			FROM sccpdevmodel
 			WHERE dns = 0
-			ORDER BY model ");
-			
-    while ($row = mysql_fetch_row($res)) {
+			ORDER BY model ";
+
+    $res = $db->getAll($sql);
+
+    if(DB::IsError($res)) {
+        die_freepbx($res->getMessage().$sql);
+    }
+
+    while ($row = $res[$i++]) {
 	$addonData['model'][] = $row[0];
 	$addonData['buttons'][] = $row[1];
 	$addonData['loadimage'][] = $row[2];
@@ -660,7 +681,7 @@ function sccp_get_confData($type) {
 		$confData['type'] = $type;
 	    }
 	    if ($file_context == "$search" && strpos($input,"=")) {
-		list($field,$value) = split("=",$input);
+		list($field,$value) = explode("=",$input);
 		if ($field == 'allow') {
 		    $confData['allow'] .= $value . ',';
 		} else {
@@ -816,13 +837,14 @@ function sccp_edit_tftp($tftpdisplay,$tftpData) {
     $confData['autoCallSelect'] = $tftpData['autoCallSelect'];
 
     if ($tftpdisplay == 'XMLDefault') {
-	$res = mysql_query("SELECT vendor, model, loadimage, loadinformationid
+	$i = 0;
+	$res = "SELECT vendor, model, loadimage, loadinformationid
 			FROM sccpdevmodel
 			WHERE loadinformationid IS NOT NULL 
 			AND loadimage IS NOT NULL
-			ORDER BY loadinformationid ");
+			ORDER BY loadinformationid ";
 			
-	while ($row = mysql_fetch_row($res)) {
+	while ($row = $res[$i++]) {
 	    $vendor = $row[0];
 	    $model = $row[1];
 	    $model = preg_replace('/(,.*)/','',$model);
@@ -865,6 +887,7 @@ function arrayToXML(Array $array, SimpleXMLElement $xml) {
 
 function sccp_get_tftp_loadlist($model) {
     global $db;
+    $i = 0; 
 
     if (strtoupper($model) == 'DEFAULT') {
 	$where = "WHERE loadimage IS NOT NULL";
@@ -872,12 +895,17 @@ function sccp_get_tftp_loadlist($model) {
 	$where = "WHERE model = '$model'";
     }
 	
-    $res = mysql_query("SELECT loadinformationid,loadimage 
+    $sql = "SELECT loadinformationid,loadimage 
 		FROM sccpdevmodel
 		$where
-		ORDER BY loadinformationid");    
+		ORDER BY loadinformationid";
 
-    while ($row = mysql_fetch_row($res)) {
+    $res = $db->getAll($sql);
+    if(DB::IsError($res)) {
+        die_freepbx($res->getMessage()."<br><br>Error getting loadlist");
+    }
+ 
+    while ($row = $res[$i++]) {
 	if (strtoupper($model) == 'DEFAULT') {
 	    $loadlist[$row[0]] = $row[1];
 	} else {
@@ -992,7 +1020,7 @@ function sccp_edit_devmodel($devmodel) {
     global $db;
 
     foreach ($devmodel as $field => $value) {
-	list ($field, $model) = split('_',$field);
+	list ($field, $model) = preg_split('_',$field);
 	if ($field == "del" && $value == 'on') {
 	    $dquery = "DELETE FROM sccpdevmodel WHERE model = '$model';";
             $result = $db->query($dquery);
@@ -1221,4 +1249,3 @@ class Array2XML {
     }
 }
 ?>
-
