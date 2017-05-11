@@ -21,6 +21,7 @@
 			<field name="dns" type="integer" default="1"/>
 			<field name="buttons" type="int" default="0"/>
 			<field name="loadimage" type="string" length="40" default=""/>
+			<field name="loadinformationid" type="string" length="30" default=""/>
 		</table>
 	</database>
 	<changelog>
