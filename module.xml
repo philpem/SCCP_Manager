@@ -14,6 +14,15 @@
 		<sccp_keyset sort="5">SCCP Keyset</sccp_keyset>
 		<sccp_devmodel sort="6">SCCP DevModel</sccp_devmodel>
 	</menuitems>
+	<database>
+		<table name="sccpdevmodel">
+			<field name="model" type="string" length="20" default="" notnull="true" primaryKey="true"/>
+			<field name="vendor" type="string" length="40" default=""/>
+			<field name="dns" type="integer" default="1"/>
+			<field name="buttons" type="int" default="0"/>
+			<field name="loadimage" type="string" length="40" default=""/>
+		</table>
+	</database>
 	<changelog>
 	Changes since Version 1.1.
 		Fixed a couple of typos and updated the PHP code to not fail on install with Asterisk 13.
