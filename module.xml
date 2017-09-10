@@ -1,10 +1,10 @@
 <module>
 	<rawname>sccp_manager</rawname>
 	<name>SCCP Manager</name>
-	<version>1.1.2</version>
+	<version>1.1.2mod1 (philpem)</version>
 	<type>setup</type>
 	<category>SCCP Connectivity</category>
-	<publisher>Cynjut Consulting Services, LLC</publisher>
+	<publisher>Cynjut Consulting Services, LLC, qoole, ictabc and philpem</publisher>
 	<description>SCCP Phone and Extention Manager</description>
 	<menuitems>
 		<sccp_devices sort="1">SCCP Phones</sccp_devices>
@@ -25,6 +25,8 @@
 		</table>
 	</database>
 	<changelog>
+	Changes since Version 1.2.
+		Bugfixes (from qoole and ictabc at github) to allow use with FreePBX 13.  (merge by philpem)
 	Changes since Version 1.1.
 		Fixed a couple of typos and updated the PHP code to not fail on install with Asterisk 13.
 	Changes since Version 1.0.0. 
